@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسابقة اللغة العربية والأدب - مع لوحة تحكم</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            --font-ui: 'Tajawal', sans-serif;
+            --font-lit: 'Amiri', serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            overflow: hidden; 
+        }
+
+        /* --- Presentation UI --- */
+        .presentation-container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .presentation-container::-webkit-scrollbar { width: 8px; }
+        .presentation-container::-webkit-scrollbar-track { background: transparent; }
+        .presentation-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .slide {
+            height: 100vh;
+            width: 100vw;
+            scroll-snap-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 2rem;
+        }
+
+        .bg-blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(79,70,229,0.1) 0%, rgba(79,70,229,0) 70%);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 8s infinite alternate ease-in-out;
+            z-index: 0;
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 4rem 5rem;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0,0,0,0.02);
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            transform: translateY(40px) scale(0.98);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .slide.active .card {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .title-slide .card {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .title-slide h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-main), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title-slide p {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        .q-number {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .q-number::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2px;
+            background-color: var(--accent);
+        }
+
+        .question-text {
+            font-size: 2.2rem;
+            font-weight: 500;
+            line-height: 1.5;
+            color: var(--text-main);
+            margin-bottom: 2.5rem;
+        }
+
+        .action-area {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .reveal-btn {
+            background-color: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-family: var(--font-ui);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reveal-btn:hover {
+            background-color: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+        }
+
+        .answer-container {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease, margin-top 0.6s ease;
+            margin-top: 0;
+        }
+
+        .answer-container.revealed {
+            max-height: 1500px;
+            opacity: 1;
+            margin-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 2rem;
+        }
+
+        .sequential-list li {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            transform: translateX(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            list-style-type: none;
+            position: relative;
+        }
+
+        .sequential-list li.visible {
+            opacity: 1;
+            max-height: 200px;
+            margin-bottom: 15px;
+            padding-right: 25px;
+            transform: translateX(0);
+        }
+        
+        .sequential-list li.visible::before {
+            content: '•';
+            color: var(--accent);
+            position: absolute;
+            right: 0;
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .answer-label {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .answer-text {
+            font-size: 1.8rem;
+            color: var(--text-main);
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        /* Standard list styling for non-sequential */
+        .normal-list {
+            list-style-type: none;
+        }
+        .normal-list li {
+            position: relative;
+            padding-right: 25px;
+            margin-bottom: 10px;
+        }
+        .normal-list li::before {
+            content: '•';
+            color: var(--accent);
+            position: absolute;
+            right: 0;
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .lit-text {
+            font-family: var(--font-lit);
+            font-size: 2.6rem;
+            color: #1e293b;
+            line-height: 1.8;
+            display: block;
+            margin: 1rem 0;
+        }
+
+        .nav-dots {
+            position: fixed;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #cbd5e1;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background-color: var(--accent);
+            transform: scale(1.5);
+            height: 16px;
+            border-radius: 10px;
+        }
+
+        /* --- Admin UI Styles --- */
+        #admin-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--card-bg);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #admin-btn:hover {
+            color: var(--accent);
+            transform: rotate(90deg);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-box {
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            width: 400px;
+        }
+
+        .login-box h2 {
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 1.2rem;
+            font-family: var(--font-ui);
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+            outline: none;
+        }
+        .login-box input:focus { border-color: var(--accent); }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: var(--font-ui);
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: var(--danger-hover); }
+
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; opacity: 0.9; }
+
+        .btn-outline { background: transparent; border: 2px solid #cbd5e1; color: var(--text-main); }
+        .btn-outline:hover { background: #f1f5f9; }
+
+        /* Dashboard Layout */
+        .admin-dashboard {
+            background: var(--bg-color);
+            width: 95vw;
+            height: 90vh;
+            border-radius: 16px;
+            display: flex;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .admin-sidebar {
+            width: 300px;
+            background: var(--card-bg);
+            border-left: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .question-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .q-item {
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: background 0.2s;
+        }
+
+        .q-item:hover { background: #f1f5f9; }
+        .q-item.active { background: var(--accent); color: white; }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .admin-main {
+            flex: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: var(--font-ui);
+            font-size: 1.1rem;
+            resize: vertical;
+        }
+        .form-control:focus { outline: none; border-color: var(--accent); }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #e0e7ff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #c7d2fe;
+            margin-bottom: 20px;
+        }
+        .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+        .checkbox-group label { margin: 0; cursor: pointer; font-weight: 700; color: var(--accent); }
+        .help-text { font-size: 0.9rem; color: #64748b; margin-top: 5px; display: block; }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .card { padding: 2.5rem 2rem; }
+            .question-text { font-size: 1.6rem; }
+            .answer-text { font-size: 1.4rem; }
+            .title-slide h1 { font-size: 2.5rem; }
+            .nav-dots { display: none; }
+            .admin-dashboard { flex-direction: column; }
+            .admin-sidebar { width: 100%; height: 250px; border-left: none; border-bottom: 1px solid #e2e8f0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav Dots -->
+    <div class="nav-dots" id="navDots"></div>
+
+    <!-- Presentation View -->
+    <div class="presentation-container" id="presentation">
+        <section class="slide title-slide">
+            <div class="bg-blob"></div>
+            <div class="card">
+                <h1>مسابقة اللغة العربية والأدب</h1>
+                <p>تحديات واختبارات لغوية وأدبية</p>
+                <div style="margin-top: 30px;">
+                    <i class="fa-solid fa-chevron-down" style="font-size: 2rem; color: var(--accent); animation: bounce 2s infinite;"></i>
+                </div>
+            </div>
+        </section>
+        <div id="slidesWrapper"></div>
+    </div>
+
+    <!-- Admin Button -->
+    <button id="admin-btn" title="لوحة التحكم" onclick="openLogin()"><i class="fa-solid fa-gear"></i></button>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="login-modal">
+        <div class="login-box">
+            <h2>تسجيل الدخول للإدارة</h2>
+            <input type="password" id="admin-pwd" placeholder="كلمة المرور..." onkeypress="handleLoginEnter(event)">
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="checkLogin()">دخول</button>
+                <button class="btn btn-outline" onclick="closeLogin()">إلغاء</button>
+            </div>
+            <p id="login-error" style="color: var(--danger); margin-top: 15px; display: none;">كلمة المرور غير صحيحة!</p>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Modal -->
+    <div class="modal-overlay" id="admin-modal">
+        <div class="admin-dashboard">
+            <!-- Sidebar -->
+            <div class="admin-sidebar">
+                <div class="sidebar-header">
+                    <h3><i class="fa-solid fa-list-check"></i> إدارة الأسئلة</h3>
+                </div>
+                <div class="question-list" id="admin-q-list">
+                    <!-- Dynamic list -->
+                </div>
+                <div class="sidebar-footer">
+                    <button class="btn btn-primary" style="width: 100%" onclick="createNewQuestion()">
+                        <i class="fa-solid fa-plus"></i> إضافة سؤال جديد
+                    </button>
+                    <button class="btn btn-success" style="width: 100%" onclick="exportApp()">
+                        <i class="fa-solid fa-download"></i> استخراج الكود (حفظ دائم)
+                    </button>
+                    <button class="btn btn-danger" style="width: 100%" onclick="resetToDefaults()">
+                        <i class="fa-solid fa-rotate-left"></i> استعادة الافتراضي
+                    </button>
+                    <button class="btn btn-outline" style="width: 100%" onclick="closeAdmin()">
+                        <i class="fa-solid fa-xmark"></i> إغلاق لوحة التحكم
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Edit Area -->
+            <div class="admin-main" id="admin-editor" style="display: none;">
+                <div class="admin-header">
+                    <h2 id="editor-title">تعديل السؤال</h2>
+                    <span id="editor-index" style="display:none;"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label>نص السؤال:</label>
+                    <textarea class="form-control" id="edit-q" rows="3" placeholder="اكتب السؤال هنا..."></textarea>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="edit-sequential" onchange="toggleHint()">
+                    <div>
+                        <label for="edit-sequential">إظهار الجواب بالتتابع (عنصر تلو الآخر)؟</label>
+                        <span class="help-text" id="seq-hint" style="display:none;">(اكتب كل عنصر في سطر جديد. سيتم إظهار كل سطر كخطوة منفصلة عند النقر على الزر).</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>نص الجواب:</label>
+                    <textarea class="form-control" id="edit-a" rows="6" placeholder="اكتب الجواب هنا..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="saveQuestion()"><i class="fa-solid fa-floppy-disk"></i> حفظ التغييرات</button>
+                    <button class="btn btn-success" id="duplicate-btn" onclick="duplicateQuestion()"><i class="fa-solid fa-copy"></i> تكرار</button>
+                    <button class="btn btn-outline" id="move-up-btn" onclick="moveQuestionUp()"><i class="fa-solid fa-arrow-up"></i> للأعلى</button>
+                    <button class="btn btn-outline" id="move-down-btn" onclick="moveQuestionDown()"><i class="fa-solid fa-arrow-down"></i> للأسفل</button>
+                    <button class="btn btn-danger" id="delete-btn" onclick="deleteQuestion()"><i class="fa-solid fa-trash"></i> حذف السؤال</button>
+                </div>
+            </div>
+            
+            <div class="admin-main" id="admin-welcome" style="display: flex; align-items: center; justify-content: center; flex-direction: column; color: var(--text-muted);">
+                <i class="fa-solid fa-hand-pointer" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                <h2>اختر سؤالاً من القائمة للتعديل</h2>
+                <p>أو انقر على "إضافة سؤال جديد"</p>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(10px); }
+            60% { transform: translateY(5px); }
+        }
+    </style>
+
+    <script>
+        /*DATA_START*/
+        const defaultQuizData = [
+            {
+                "q": "ما هي علامات الإعراب الأصلية؟",
+                "a": "الضمة للرفع، الفتحة للنصب، الكسرة للجر، والسكون للجزم.",
+                "isSequential": false
+            },
+            {
+                "q": "من هو الشاعر الذي لُقب بـ \"شاعر النيل\"؟",
+                "a": "حافظ إبراهيم.",
+                "isSequential": false
+            },
+            {
+                "q": "من هو الكاتب العربي الوحيد الذي حصل على جائزة نوبل في الأدب؟",
+                "a": "نجيب محفوظ (عام 1988).",
+                "isSequential": false
+            },
+            {
+                "q": "تحدي سريع (صح أم خطأ):<br><br><ul><li>لُقب أحمد شوقي بـ \"أمير الشعراء\".</li><li>الخنساء اشتهرت بشعر \"الرثاء\" في أخويها صخر ومعاوية.</li></ul>",
+                "a": "كلاهما ( صح ).",
+                "isSequential": false
+            },
+            {
+                "q": "ماذا يسمى النوع من الشعر الذي يصف فيه الشاعر مشاعره تجاه المحبوبة؟",
+                "a": "الغزل.",
+                "isSequential": false
+            },
+            {
+                "q": "ما اسم أشهر مجموعة قصص خيالية عربية (بطلتها شهرزاد)؟",
+                "a": "ألف ليلة وليلة.",
+                "isSequential": false
+            },
+            {
+                "q": "اذكر بعض الأمثال العربية الشهيرة من الآتي:",
+                "a": "القرد في عين أمه غزال.\nالطيور على أشكالها تقع.",
+                "isSequential": true
+            },
+            {
+                "q": "رتب الألفاظ على حسب المعجم:<br><br><span style='color:var(--accent); font-size: 1.5rem;'>(اضمحلال, سنان, منور, مقدام, مقداد, منع, منهاج, مصعب)</span>",
+                "a": "سنان، مصعب، اضمحلال، مقداد، مقدام، منع، منور، منهاج.",
+                "isSequential": false
+            },
+            {
+                "q": "من فضلكم اذكر الضمائر البارزة المنصوبة.",
+                "a": "للمتكلم: إِيَّايَ (إيايَ نفعَ الصدقُ)، إِيَّانَا.\nللمخاطب: إِيَّاكَ (إياكَ نعبدُ)، إِيَّاكِ، إِيَّاكُمَا، إِيَّاكُمْ، إِيَّاكُنَّ.\nللغائب: إِيَّاهُ، إِيَّاهَا، إِيَّاهُمَا، إِيَّاهُمْ، إِيَّاهُنَّ.",
+                "isSequential": true
+            },
+            {
+                "q": "من فضلكم هات الجمع للمفرد والمفرد للجمع للكلمات الآتية:<br><br><span style='color:var(--accent); font-size: 1.5rem;'>(شوايا, عنكبوت, امبراطور, سفارج, ماء, شياه, جبال)</span>",
+                "a": "شوايا: مفردها شَوِيَّة\nسفارج: مفردها سَفَرْجَل\nشياه: مفردها شاة\nجبال: مفردها جبل\nعنكبوت: تجمع على عناكب\nإمبراطور: تجمع على أباطرة\nماء: تجمع على مياه أو أمواه",
+                "isSequential": true
+            },
+            {
+                "q": "أعرب الآتية: <br><span class='lit-text'>\"كتاب العلم, لا إله إلا الله\"</span>",
+                "a": "(تمرين نحوي مفتوح للمناقشة والإعراب التفصيلي).",
+                "isSequential": false
+            },
+            {
+                "q": "أعرب الآتية: <br><span class='lit-text'>\"أتينا طالبي الرفد\"</span>",
+                "a": "(تمرين نحوي مفتوح لإعراب الفعل والفاعل والمفعول/الحال).",
+                "isSequential": false
+            },
+            {
+                "q": "شَكّل العبارة الآتية: <br>\"أن محمد كريم\"",
+                "a": "<span class='lit-text'>أَنَّ مُحَمَّداً كَرِيمٌ.</span>",
+                "isSequential": false
+            },
+            {
+                "q": "مَثّل للأفعال الآتية:<br>السالم، الأجوف، المثال، الناقص، المهموز، المضعف، واللفيفين.",
+                "a": "(تمرين مفتوح لاستحضار أمثلة على أنواع الفعل الصحيح والمعتل).",
+                "isSequential": false
+            },
+            {
+                "q": "اكتب الكلمات الآتية بشكل صحيح:<br><span style='color:var(--accent); font-size: 1.5rem;'>(ش ي ء) , (رءياني) , (م ء رب) , (ض ء يل)</span>",
+                "a": "شيء - رؤياني - مأرب - ضئيل.",
+                "isSequential": false
+            },
+            {
+                "q": "ما هو الكانون الأول والثاني وما يقابلها من شهور؟",
+                "a": "كانون الثاني = (يناير - January)\nشباط = (فبراير - February)\nآذار = (مارس - March)\nنيسان = (أبريل - April)\nأيار = (مايو - May)\nحزيران = (يونيو - June)\nتموز = (يوليو - July)\nآب = (أغسطس - August)\nأيلول = (سبتمبر - September)\nتشرين الأول = (أكتوبر - October)\nتشرين الثاني = (نوفمبر - November)\nكانون الأول = (ديسمبر - December)",
+                "isSequential": true
+            },
+            {
+                "q": "ترجم هذه الألفاظ ومصادرها: <br><span style='font-family:sans-serif; letter-spacing:2px;'>(AD, PM, AM)</span>",
+                "a": "AM: الأصل اللاتيني (Ante Meridiem). الترجمة: قبل الظهر.\nPM: الأصل اللاتيني (Post Meridiem). الترجمة: بعد الظهر.\nAD: الأصل اللاتيني (Anno Domini). الترجمة: ميلادي.",
+                "isSequential": true
+            },
+            {
+                "q": "ارسم الشعر.",
+                "a": "(نشاط إبداعي فني يُترك للمتلقي للتعبير عن بيت شعري برسمة).",
+                "isSequential": false
+            },
+            {
+                "q": "مَثّل للسجع في اللغة العربية.",
+                "a": "«فِي سِدْرٍ مَّخْضُودٍ * وَطَلْحٍ مَّنضُودٍ * وَظِلٍّ مَّمْدُودٍ»\n\"الصومُ حِرمانٌ مشروع، وتأديبٌ للجوع، وخشوعٌ للهِ والخضوع\"",
+                "isSequential": true
+            },
+            {
+                "q": "مَثّل للمفاعيل الخمسة:<br><span style='color:var(--text-muted);'>(له، به، فيه، معه، مطلق)</span>",
+                "a": "(تمرين تطبيقي للطلاب لاستخراج جمل تشمل: المفعول لأجله، به، فيه، معه، والمطلق).",
+                "isSequential": false
+            },
+            {
+                "q": "ما الفرق بين \"احرنجم\" و \"اقعنسس\"؟",
+                "a": "احرنجم: أصلها رباعي مجرد وهو (ح ر ج م).\n\nاقعنسس: أصلها ثلاثي مجرد وهو (ق ع س) (من القَعَس وهو دخول الظهر وخروج الصدر).",
+                "isSequential": false
+            },
+            {
+                "q": "من فضلكم رتب الحروف الهجائية.",
+                "a": "أ، ب، ت، ث، ج، ح، خ، د، ذ، ر، ز، س، ش، ص، ض، ط، ظ، ع، غ، ف، ق، ك، ل، م، ن، هـ، و، ي",
+                "isSequential": false
+            },
+            {
+                "q": "تحديات النطق السريع (اقرأها بسرعة):",
+                "a": "بطتنا بطت بطن بطتكم مثل ما بطتكم بطت بطن بطتنا.\nشرشفنا مع شريف وشرشف شريف زي شرشفنا.\nوَقَبْرُ حَرْبٍ بِمَكَانٍ قَفْرٍ .. وَلَيْسَ قُرْبَ قَبْرِ حَرْبٍ قَبْرُ\nمالكم تكأكأتم كتكأكئكم على ذي جنة افرنقعوا عني.\nهـذا الـمـهـمـهـم لا يـمـهـمـهـم مـهـمـهـمتنا.\nجدار دار طين دارنا أكبر من جدار دار طين جارنا.",
+                "isSequential": true
+            },
+            {
+                "q": "اكتب جملا يشتمل كل كلمة منها الحروف المهملة (غير المنقوطة):",
+                "a": "<span class='lit-text'>له معال عوال لا عداد له<br>له اللوا وله راموا لهولهم</span>",
+                "isSequential": false
+            },
+            {
+                "q": "اكتب جملا يشتمل كل كلمة منها الحروف المعجمة (المنقوطة):",
+                "a": "<span class='lit-text'>جنيت ففي ذنبي تقضّت شبيبتي<br>قني خيفتي في ضجّة بي تضيّق</span>",
+                "isSequential": false
+            }
+        ];
+        /*DATA_END*/
+
+        // --- State Management ---
+        let quizData = [];
+        const STORAGE_KEY = 'arabic_quiz_data';
+
+        function loadData() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    quizData = JSON.parse(saved);
+                } catch(e) {
+                    quizData = JSON.parse(JSON.stringify(defaultQuizData));
+                }
+            } else {
+                quizData = JSON.parse(JSON.stringify(defaultQuizData));
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(quizData));
+        }
+
+        function resetToDefaults() {
+            if(confirm('هل أنت متأكد من مسح جميع التعديلات والعودة للأسئلة الافتراضية؟')) {
+                localStorage.removeItem(STORAGE_KEY);
+                loadData();
+                renderPresentation();
+                renderAdminList();
+                showWelcomeScreen();
+            }
+        }
+
+        // --- Presentation Rendering ---
+        function renderPresentation() {
+            const wrapper = document.getElementById('slidesWrapper');
+            const navDots = document.getElementById('navDots');
+            wrapper.innerHTML = '';
+            navDots.innerHTML = '';
+
+            // Render Title Dot
+            const titleDot = document.createElement('div');
+            titleDot.className = 'dot active';
+            titleDot.dataset.index = 0;
+            titleDot.onclick = () => document.querySelectorAll('.slide')[0].scrollIntoView({ behavior: 'smooth' });
+            navDots.appendChild(titleDot);
+
+            quizData.forEach((item, index) => {
+                // Generate Dot
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.dataset.index = index + 1;
+                dot.onclick = () => document.querySelectorAll('.slide')[index + 1].scrollIntoView({ behavior: 'smooth' });
+                navDots.appendChild(dot);
+
+                // Format Answer
+                let answerHTML = '';
+                if (item.isSequential) {
+                    const lines = item.a.split('\n').filter(line => line.trim() !== '');
+                    answerHTML = `<ul class='sequential-list'>`;
+                    lines.forEach(line => {
+                        answerHTML += `<li>${line}</li>`;
+                    });
+                    answerHTML += `</ul>`;
+                } else {
+                    answerHTML = item.a.replace(/\n/g, '<br>');
+                }
+
+                // Generate Slide
+                const slide = document.createElement('section');
+                slide.className = 'slide';
+                slide.innerHTML = `
+                    <div class="card">
+                        <div class="q-number">السؤال ${index + 1} من ${quizData.length}</div>
+                        <div class="question-text">${item.q}</div>
+                        
+                        <div class="action-area">
+                            <button class="reveal-btn" onclick="toggleAnswer(this)">
+                                <i class="fa-solid fa-eye"></i> إظهار الجواب
+                            </button>
+                        </div>
+
+                        <div class="answer-container">
+                            <div class="answer-label">الجواب:</div>
+                            <div class="answer-text">${answerHTML}</div>
+                        </div>
+                    </div>
+                `;
+                wrapper.appendChild(slide);
+            });
+
+            setupIntersectionObserver();
+        }
+
+        // --- Reveal Logic ---
+        window.toggleAnswer = function(btn) {
+            const container = btn.parentElement.nextElementSibling;
+            const seqList = container.querySelector('.sequential-list');
+
+            if (seqList) {
+                // Logic for sequential revealing
+                const hiddenItems = seqList.querySelectorAll('li:not(.visible)');
+                
+                if (!container.classList.contains('revealed')) {
+                    // First click: open container and show first item
+                    container.classList.add('revealed');
+                    if (hiddenItems.length > 0) {
+                        hiddenItems[0].classList.add('visible');
+                    }
+                    btn.innerHTML = '<i class="fa-solid fa-arrow-down"></i> إظهار التالي';
+                } else if (hiddenItems.length > 0) {
+                    // Subsequent clicks: show next item
+                    hiddenItems[0].classList.add('visible');
+                    if (hiddenItems.length === 1) { // That was the last item
+                        btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> إخفاء الجواب';
+                        btn.style.backgroundColor = 'var(--accent)';
+                        btn.style.color = 'white';
+                    }
+                } else {
+                    // All shown, reset everything
+                    container.classList.remove('revealed');
+                    seqList.querySelectorAll('li').forEach(li => li.classList.remove('visible'));
+                    btn.innerHTML = '<i class="fa-solid fa-eye"></i> إظهار الجواب';
+                    btn.style.backgroundColor = 'transparent';
+                    btn.style.color = 'var(--accent)';
+                }
+            } else {
+                // Standard reveal logic
+                container.classList.toggle('revealed');
+                
+                if(container.classList.contains('revealed')) {
+                    btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> إخفاء الجواب';
+                    btn.style.backgroundColor = 'var(--accent)';
+                    btn.style.color = 'white';
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-eye"></i> إظهار الجواب';
+                    btn.style.backgroundColor = 'transparent';
+                    btn.style.color = 'var(--accent)';
+                }
+            }
+        }
+
+        // --- Scroll Observer ---
+        let observer;
+        function setupIntersectionObserver() {
+            if(observer) observer.disconnect();
+            
+            const dots = document.querySelectorAll('.dot');
+            observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        const slides = Array.from(document.querySelectorAll('.slide'));
+                        const index = slides.indexOf(entry.target);
+                        dots.forEach(d => d.classList.remove('active'));
+                        if(dots[index]) dots[index].classList.add('active');
+                    }
+                });
+            }, { root: document.getElementById('presentation'), threshold: 0.5 });
+
+            document.querySelectorAll('.slide').forEach(slide => observer.observe(slide));
+        }
+
+        // --- Admin Panel Logic ---
+        function openLogin() {
+            document.getElementById('login-modal').style.display = 'flex';
+            document.getElementById('admin-pwd').value = '';
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('admin-pwd').focus();
+        }
+
+        function closeLogin() {
+            document.getElementById('login-modal').style.display = 'none';
+        }
+
+        function handleLoginEnter(e) {
+            if (e.key === 'Enter') checkLogin();
+        }
+
+        function checkLogin() {
+            const pwd = document.getElementById('admin-pwd').value;
+            if (pwd === '1234') {
+                closeLogin();
+                openAdmin();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        function openAdmin() {
+            document.getElementById('admin-modal').style.display = 'flex';
+            renderAdminList();
+            showWelcomeScreen();
+        }
+
+        function closeAdmin() {
+            document.getElementById('admin-modal').style.display = 'none';
+        }
+
+        function renderAdminList() {
+            const list = document.getElementById('admin-q-list');
+            list.innerHTML = '';
+            quizData.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'q-item';
+                div.innerText = `${index + 1}. ${item.q.replace(/<[^>]*>?/gm, '')}`; // strip html for list
+                div.onclick = () => editQuestion(index);
+                list.appendChild(div);
+            });
+        }
+
+        function showWelcomeScreen() {
+            document.getElementById('admin-welcome').style.display = 'flex';
+            document.getElementById('admin-editor').style.display = 'none';
+            // remove active class
+            document.querySelectorAll('.q-item').forEach(el => el.classList.remove('active'));
+        }
+
+        function editQuestion(index) {
+            document.getElementById('admin-welcome').style.display = 'none';
+            document.getElementById('admin-editor').style.display = 'block';
+            
+            // highlight active
+            const items = document.querySelectorAll('.q-item');
+            items.forEach(el => el.classList.remove('active'));
+            items[index].classList.add('active');
+
+            const item = quizData[index];
+            document.getElementById('editor-index').innerText = index;
+            document.getElementById('edit-q').value = item.q;
+            document.getElementById('edit-a').value = item.a;
+            document.getElementById('edit-sequential').checked = item.isSequential;
+            
+            // Control button visibility
+            document.getElementById('delete-btn').style.display = 'flex';
+            document.getElementById('duplicate-btn').style.display = 'flex';
+            document.getElementById('move-up-btn').style.display = index > 0 ? 'flex' : 'none';
+            document.getElementById('move-down-btn').style.display = index < quizData.length - 1 ? 'flex' : 'none';
+
+            toggleHint();
+        }
+
+        function createNewQuestion() {
+            document.getElementById('admin-welcome').style.display = 'none';
+            document.getElementById('admin-editor').style.display = 'block';
+            document.querySelectorAll('.q-item').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('editor-index').innerText = -1; // -1 means new
+            document.getElementById('edit-q').value = '';
+            document.getElementById('edit-a').value = '';
+            document.getElementById('edit-sequential').checked = false;
+            
+            document.getElementById('delete-btn').style.display = 'none';
+            document.getElementById('duplicate-btn').style.display = 'none';
+            document.getElementById('move-up-btn').style.display = 'none';
+            document.getElementById('move-down-btn').style.display = 'none';
+            
+            toggleHint();
+        }
+
+        function toggleHint() {
+            const isSeq = document.getElementById('edit-sequential').checked;
+            document.getElementById('seq-hint').style.display = isSeq ? 'block' : 'none';
+        }
+
+        function saveQuestion() {
+            const idxStr = document.getElementById('editor-index').innerText;
+            const index = parseInt(idxStr);
+            
+            const q = document.getElementById('edit-q').value.trim();
+            const a = document.getElementById('edit-a').value.trim();
+            const isSeq = document.getElementById('edit-sequential').checked;
+
+            if (!q || !a) {
+                alert('يرجى ملء نص السؤال والجواب!');
+                return;
+            }
+
+            const newItem = { q: q, a: a, isSequential: isSeq };
+
+            if (index === -1) {
+                // Add new
+                quizData.push(newItem);
+            } else {
+                // Update
+                quizData[index] = newItem;
+            }
+
+            saveData();
+            renderPresentation();
+            renderAdminList();
+            
+            if(index === -1) {
+                editQuestion(quizData.length - 1); // Select the newly created one
+            }
+            
+            // Simple visual feedback
+            const saveBtn = document.querySelector('.form-actions .btn-primary');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fa-solid fa-check"></i> تم الحفظ!';
+            saveBtn.style.backgroundColor = 'var(--success)';
+            setTimeout(() => {
+                saveBtn.innerHTML = originalText;
+                saveBtn.style.backgroundColor = '';
+            }, 1500);
+        }
+
+        function deleteQuestion() {
+            if(confirm('هل أنت متأكد من حذف هذا السؤال نهائياً؟')) {
+                const index = parseInt(document.getElementById('editor-index').innerText);
+                quizData.splice(index, 1);
+                saveData();
+                renderPresentation();
+                renderAdminList();
+                showWelcomeScreen();
+            }
+        }
+
+        function duplicateQuestion() {
+            const index = parseInt(document.getElementById('editor-index').innerText);
+            if (index >= 0) {
+                const item = JSON.parse(JSON.stringify(quizData[index])); // Deep copy
+                item.q = item.q + " (نسخة)";
+                quizData.splice(index + 1, 0, item);
+                saveData();
+                renderPresentation();
+                renderAdminList();
+                editQuestion(index + 1); // Edit the newly duplicated item
+            }
+        }
+
+        function moveQuestionUp() {
+            const index = parseInt(document.getElementById('editor-index').innerText);
+            if (index > 0) {
+                const temp = quizData[index];
+                quizData[index] = quizData[index - 1];
+                quizData[index - 1] = temp;
+                saveData();
+                renderPresentation();
+                renderAdminList();
+                editQuestion(index - 1);
+            }
+        }
+
+        function moveQuestionDown() {
+            const index = parseInt(document.getElementById('editor-index').innerText);
+            if (index >= 0 && index < quizData.length - 1) {
+                const temp = quizData[index];
+                quizData[index] = quizData[index + 1];
+                quizData[index + 1] = temp;
+                saveData();
+                renderPresentation();
+                renderAdminList();
+                editQuestion(index + 1);
+            }
+        }
+
+        // --- Export (Self-Modifying) Logic ---
+        async function exportApp() {
+            try {
+                // Fetch the original HTML of the currently running page
+                const response = await fetch(location.href);
+                let html = await response.text();
+                
+                // Construct the new data block
+                const newDataString = JSON.stringify(quizData, null, 12);
+                const replacementBlock = `/*DATA_START*/\n        const defaultQuizData = ${newDataString};\n        /*DATA_END*/`;
+                
+                // Regex to replace everything between DATA_START and DATA_END
+                const regex = /\/\*DATA_START\*\/[\s\S]*?\/\*DATA_END\*\//;
+                const newHtml = html.replace(regex, replacementBlock);
+                
+                // Trigger Download
+                const blob = new Blob([newHtml], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'arabic_quiz_updated.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert('تم تجهيز الملف وتحميله! الملف الجديد يحتوي على التعديلات بشكل دائم داخل الكود.');
+            } catch (error) {
+                console.error("Export Failed", error);
+                alert('عذراً، حدث خطأ أثناء استخراج الملف.');
+            }
+        }
+
+        // Initialize App
+        window.onload = () => {
+            loadData();
+            renderPresentation();
+        };
+
+    </script>
+</body>
+</html>
