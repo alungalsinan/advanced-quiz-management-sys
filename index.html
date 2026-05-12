@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        :root {
+        /* --- Themes --- */
+        :root, [data-theme="modern-light"] {
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --text-main: #0f172a;
@@ -22,8 +23,58 @@
             --success: #10b981;
             --font-ui: 'Tajawal', sans-serif;
             --font-lit: 'Amiri', serif;
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --neu-shadow: 12px 12px 24px #e2e4e6, -12px -12px 24px #ffffff;
         }
 
+        [data-theme="dark-mode"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent: #818cf8;
+            --accent-hover: #6366f1;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            --glass-bg: rgba(30, 41, 59, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --neu-shadow: 12px 12px 24px #0b1120, -12px -12px 24px #131d34;
+        }
+
+        [data-theme="classic-arabic"] {
+            --bg-color: #fdf6e3;
+            --card-bg: #fffbf0;
+            --text-main: #4a3b2c;
+            --text-muted: #8b7355;
+            --accent: #b58900;
+            --accent-hover: #9c7600;
+            --danger: #dc322f;
+            --danger-hover: #cb4b16;
+            --success: #859900;
+            --glass-bg: rgba(255, 251, 240, 0.7);
+            --glass-border: rgba(181, 137, 0, 0.3);
+            --neu-shadow: 12px 12px 24px #e4decc, -12px -12px 24px #ffffff;
+        }
+
+        [data-theme="cybersecurity"] {
+            --bg-color: #050505;
+            --card-bg: #111111;
+            --text-main: #00ff00;
+            --text-muted: #008800;
+            --accent: #00ff00;
+            --accent-hover: #00cc00;
+            --danger: #ff0000;
+            --danger-hover: #cc0000;
+            --success: #00ff00;
+            --font-ui: monospace;
+            --glass-bg: rgba(17, 17, 17, 0.8);
+            --glass-border: rgba(0, 255, 0, 0.3);
+            --neu-shadow: 6px 6px 12px #020202, -6px -6px 12px #080808;
+        }
+
+        /* --- Global Resets --- */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -97,8 +148,35 @@
             transform: translateY(0) scale(1);
         }
 
+        /* --- Advanced Card Style Presets --- */
+        [data-card-style="glass"] .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        [data-card-style="neumorphic"] .card {
+            background: var(--bg-color);
+            border: none;
+            box-shadow: var(--neu-shadow);
+        }
+
+        [data-card-style="minimal"] .card {
+            background: transparent;
+            border: 2px solid var(--accent);
+            box-shadow: none;
+        }
+
+        /* --- Title Slide Override --- */
         .title-slide .card {
             text-align: center;
+        }
+        
+        /* Apply background filter if default style */
+        :root[data-card-style="default"] .title-slide .card,
+        [data-theme="modern-light"][data-card-style="default"] .title-slide .card {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.5);
@@ -292,7 +370,7 @@
             bottom: 20px;
             left: 20px;
             background: var(--card-bg);
-            border: none;
+            border: 2px solid #cbd5e1;
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -308,6 +386,7 @@
         }
         #admin-btn:hover {
             color: var(--accent);
+            border-color: var(--accent);
             transform: rotate(90deg);
         }
 
@@ -374,7 +453,7 @@
         .btn-success:hover { background: #059669; opacity: 0.9; }
 
         .btn-outline { background: transparent; border: 2px solid #cbd5e1; color: var(--text-main); }
-        .btn-outline:hover { background: #f1f5f9; }
+        .btn-outline:hover { background: #f1f5f9; color: #000; }
 
         /* Dashboard Layout */
         .admin-dashboard {
@@ -422,9 +501,10 @@
             overflow: hidden;
             text-overflow: ellipsis;
             transition: background 0.2s;
+            color: var(--text-main);
         }
 
-        .q-item:hover { background: #f1f5f9; }
+        .q-item:hover { background: rgba(0,0,0,0.05); }
         .q-item.active { background: var(--accent); color: white; }
 
         .sidebar-footer {
@@ -468,6 +548,8 @@
             font-family: var(--font-ui);
             font-size: 1.1rem;
             resize: vertical;
+            background: var(--card-bg);
+            color: var(--text-main);
         }
         .form-control:focus { outline: none; border-color: var(--accent); }
 
@@ -475,15 +557,15 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: #e0e7ff;
+            background: rgba(79, 70, 229, 0.1);
             padding: 15px;
             border-radius: 8px;
-            border: 1px solid #c7d2fe;
+            border: 1px solid rgba(79, 70, 229, 0.2);
             margin-bottom: 20px;
         }
         .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
         .checkbox-group label { margin: 0; cursor: pointer; font-weight: 700; color: var(--accent); }
-        .help-text { font-size: 0.9rem; color: #64748b; margin-top: 5px; display: block; }
+        .help-text { font-size: 0.9rem; color: var(--text-muted); margin-top: 5px; display: block; }
 
         .form-actions {
             display: flex;
@@ -503,6 +585,12 @@
             .nav-dots { display: none; }
             .admin-dashboard { flex-direction: column; }
             .admin-sidebar { width: 100%; height: 250px; border-left: none; border-bottom: 1px solid #e2e8f0; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(10px); }
+            60% { transform: translateY(5px); }
         }
     </style>
 </head>
@@ -554,6 +642,24 @@
                     <!-- Dynamic list -->
                 </div>
                 <div class="sidebar-footer">
+                    <div style="margin-bottom: 10px;">
+                        <label for="theme-selector" style="display:block; font-weight:700; margin-bottom:5px; color:var(--text-main);">🎨 اختر القالب (Theme):</label>
+                        <select id="theme-selector" onchange="changeTheme()" style="width:100%; padding:8px; border-radius:8px; border:1px solid #cbd5e1; font-family:var(--font-ui); background: var(--card-bg); color: var(--text-main);">
+                            <option value="modern-light">الحديث والفاتح (Modern Light)</option>
+                            <option value="dark-mode">الوضع الليلي (Dark Mode)</option>
+                            <option value="classic-arabic">تراثي كلاسيكي (Classic Arabic)</option>
+                            <option value="cybersecurity">السيبراني (Cyber Hacker)</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label for="style-selector" style="display:block; font-weight:700; margin-bottom:5px; color:var(--text-main);">✨ نمط البطاقات (Card Style):</label>
+                        <select id="style-selector" onchange="changeCardStyle()" style="width:100%; padding:8px; border-radius:8px; border:1px solid #cbd5e1; font-family:var(--font-ui); background: var(--card-bg); color: var(--text-main);">
+                            <option value="default">الافتراضي (Default)</option>
+                            <option value="glass">تأثير الزجاج (Glassmorphism)</option>
+                            <option value="neumorphic">بروز ناعم (Neumorphism)</option>
+                            <option value="minimal">مفرغ وبسيط (Minimal)</option>
+                        </select>
+                    </div>
                     <button class="btn btn-primary" style="width: 100%" onclick="createNewQuestion()">
                         <i class="fa-solid fa-plus"></i> إضافة سؤال جديد
                     </button>
@@ -611,16 +717,10 @@
         </div>
     </div>
 
-    <style>
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(10px); }
-            60% { transform: translateY(5px); }
-        }
-    </style>
-
     <script>
         /*DATA_START*/
+        const defaultTheme = "modern-light";
+        const defaultCardStyle = "default";
         const defaultQuizData = [
             {
                 "q": "ما هي علامات الإعراب الأصلية؟",
@@ -746,15 +846,31 @@
                 "q": "اكتب جملا يشتمل كل كلمة منها الحروف المعجمة (المنقوطة):",
                 "a": "<span class='lit-text'>جنيت ففي ذنبي تقضّت شبيبتي<br>قني خيفتي في ضجّة بي تضيّق</span>",
                 "isSequential": false
+            },
+            {
+                "q": "Testing , if it is working",
+                "a": "Yeah, It's workoing now!!!",
+                "isSequential": false
+            },
+            {
+                "q": "Testing , if it is working (نسخة)",
+                "a": "Yeah, It's workoing now!!!\nMahal\nnja\ned",
+                "isSequential": true
             }
         ];
         /*DATA_END*/
 
         // --- State Management ---
         let quizData = [];
+        let currentTheme = "modern-light";
+        let currentCardStyle = "default";
+        
         const STORAGE_KEY = 'arabic_quiz_data';
+        const THEME_KEY = 'arabic_quiz_theme';
+        const STYLE_KEY = 'arabic_quiz_style';
 
         function loadData() {
+            // Load Quiz Data
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 try {
@@ -765,15 +881,63 @@
             } else {
                 quizData = JSON.parse(JSON.stringify(defaultQuizData));
             }
+            
+            // Load Theme
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            if (savedTheme) {
+                currentTheme = savedTheme;
+            } else if (typeof defaultTheme !== 'undefined') {
+                currentTheme = defaultTheme;
+            }
+            applyTheme(currentTheme);
+
+            // Load Card Style
+            const savedStyle = localStorage.getItem(STYLE_KEY);
+            if (savedStyle) {
+                currentCardStyle = savedStyle;
+            } else if (typeof defaultCardStyle !== 'undefined') {
+                currentCardStyle = defaultCardStyle;
+            }
+            applyCardStyle(currentCardStyle);
         }
 
         function saveData() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(quizData));
+            localStorage.setItem(THEME_KEY, currentTheme);
+            localStorage.setItem(STYLE_KEY, currentCardStyle);
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            const selector = document.getElementById('theme-selector');
+            if (selector) selector.value = theme;
+        }
+
+        function changeTheme() {
+            const selector = document.getElementById('theme-selector');
+            currentTheme = selector.value;
+            applyTheme(currentTheme);
+            saveData();
+        }
+
+        function applyCardStyle(style) {
+            document.documentElement.setAttribute('data-card-style', style);
+            const selector = document.getElementById('style-selector');
+            if (selector) selector.value = style;
+        }
+
+        function changeCardStyle() {
+            const selector = document.getElementById('style-selector');
+            currentCardStyle = selector.value;
+            applyCardStyle(currentCardStyle);
+            saveData();
         }
 
         function resetToDefaults() {
             if(confirm('هل أنت متأكد من مسح جميع التعديلات والعودة للأسئلة الافتراضية؟')) {
                 localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(THEME_KEY);
+                localStorage.removeItem(STYLE_KEY);
                 loadData();
                 renderPresentation();
                 renderAdminList();
@@ -848,26 +1012,22 @@
             const seqList = container.querySelector('.sequential-list');
 
             if (seqList) {
-                // Logic for sequential revealing
                 const hiddenItems = seqList.querySelectorAll('li:not(.visible)');
                 
                 if (!container.classList.contains('revealed')) {
-                    // First click: open container and show first item
                     container.classList.add('revealed');
                     if (hiddenItems.length > 0) {
                         hiddenItems[0].classList.add('visible');
                     }
                     btn.innerHTML = '<i class="fa-solid fa-arrow-down"></i> إظهار التالي';
                 } else if (hiddenItems.length > 0) {
-                    // Subsequent clicks: show next item
                     hiddenItems[0].classList.add('visible');
-                    if (hiddenItems.length === 1) { // That was the last item
+                    if (hiddenItems.length === 1) { 
                         btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> إخفاء الجواب';
                         btn.style.backgroundColor = 'var(--accent)';
                         btn.style.color = 'white';
                     }
                 } else {
-                    // All shown, reset everything
                     container.classList.remove('revealed');
                     seqList.querySelectorAll('li').forEach(li => li.classList.remove('visible'));
                     btn.innerHTML = '<i class="fa-solid fa-eye"></i> إظهار الجواب';
@@ -875,7 +1035,6 @@
                     btn.style.color = 'var(--accent)';
                 }
             } else {
-                // Standard reveal logic
                 container.classList.toggle('revealed');
                 
                 if(container.classList.contains('revealed')) {
@@ -953,7 +1112,7 @@
             quizData.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'q-item';
-                div.innerText = `${index + 1}. ${item.q.replace(/<[^>]*>?/gm, '')}`; // strip html for list
+                div.innerText = `${index + 1}. ${item.q.replace(/<[^>]*>?/gm, '')}`;
                 div.onclick = () => editQuestion(index);
                 list.appendChild(div);
             });
@@ -962,7 +1121,6 @@
         function showWelcomeScreen() {
             document.getElementById('admin-welcome').style.display = 'flex';
             document.getElementById('admin-editor').style.display = 'none';
-            // remove active class
             document.querySelectorAll('.q-item').forEach(el => el.classList.remove('active'));
         }
 
@@ -970,7 +1128,6 @@
             document.getElementById('admin-welcome').style.display = 'none';
             document.getElementById('admin-editor').style.display = 'block';
             
-            // highlight active
             const items = document.querySelectorAll('.q-item');
             items.forEach(el => el.classList.remove('active'));
             items[index].classList.add('active');
@@ -981,7 +1138,6 @@
             document.getElementById('edit-a').value = item.a;
             document.getElementById('edit-sequential').checked = item.isSequential;
             
-            // Control button visibility
             document.getElementById('delete-btn').style.display = 'flex';
             document.getElementById('duplicate-btn').style.display = 'flex';
             document.getElementById('move-up-btn').style.display = index > 0 ? 'flex' : 'none';
@@ -995,7 +1151,7 @@
             document.getElementById('admin-editor').style.display = 'block';
             document.querySelectorAll('.q-item').forEach(el => el.classList.remove('active'));
             
-            document.getElementById('editor-index').innerText = -1; // -1 means new
+            document.getElementById('editor-index').innerText = -1;
             document.getElementById('edit-q').value = '';
             document.getElementById('edit-a').value = '';
             document.getElementById('edit-sequential').checked = false;
@@ -1029,10 +1185,8 @@
             const newItem = { q: q, a: a, isSequential: isSeq };
 
             if (index === -1) {
-                // Add new
                 quizData.push(newItem);
             } else {
-                // Update
                 quizData[index] = newItem;
             }
 
@@ -1041,10 +1195,9 @@
             renderAdminList();
             
             if(index === -1) {
-                editQuestion(quizData.length - 1); // Select the newly created one
+                editQuestion(quizData.length - 1);
             }
             
-            // Simple visual feedback
             const saveBtn = document.querySelector('.form-actions .btn-primary');
             const originalText = saveBtn.innerHTML;
             saveBtn.innerHTML = '<i class="fa-solid fa-check"></i> تم الحفظ!';
@@ -1069,13 +1222,13 @@
         function duplicateQuestion() {
             const index = parseInt(document.getElementById('editor-index').innerText);
             if (index >= 0) {
-                const item = JSON.parse(JSON.stringify(quizData[index])); // Deep copy
+                const item = JSON.parse(JSON.stringify(quizData[index]));
                 item.q = item.q + " (نسخة)";
                 quizData.splice(index + 1, 0, item);
                 saveData();
                 renderPresentation();
                 renderAdminList();
-                editQuestion(index + 1); // Edit the newly duplicated item
+                editQuestion(index + 1);
             }
         }
 
@@ -1108,19 +1261,15 @@
         // --- Export (Self-Modifying) Logic ---
         async function exportApp() {
             try {
-                // Fetch the original HTML of the currently running page
                 const response = await fetch(location.href);
                 let html = await response.text();
                 
-                // Construct the new data block
                 const newDataString = JSON.stringify(quizData, null, 12);
-                const replacementBlock = `/*DATA_START*/\n        const defaultQuizData = ${newDataString};\n        /*DATA_END*/`;
+                const replacementBlock = `/*DATA_START*/\n        const defaultTheme = "${currentTheme}";\n        const defaultCardStyle = "${currentCardStyle}";\n        const defaultQuizData = ${newDataString};\n        /*DATA_END*/`;
                 
-                // Regex to replace everything between DATA_START and DATA_END
                 const regex = /\/\*DATA_START\*\/[\s\S]*?\/\*DATA_END\*\//;
                 const newHtml = html.replace(regex, replacementBlock);
                 
-                // Trigger Download
                 const blob = new Blob([newHtml], { type: 'text/html' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
